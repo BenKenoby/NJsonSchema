@@ -12,10 +12,69 @@
 
     [key: string]: {{ IndexerPropertyValueType }}; 
 {% endif -%}
-{% if HasDiscriminator -%}
 
+{% if HasDiscriminator -%}
     protected _discriminator: string;
+    get discriminator(): string { return this._discriminator; }
+    set discriminator(value: string) { this._discriminator = value; }
 {% endif -%}
+
+	getProperties(): string[] {
+{% if HasInheritance -%}
+        var superProperties = super.getProperties();
+{% else -%}
+        var superProperties: string[] = [];
+{% endif -%}
+{%		if HasProperties -%}
+		var ownProperties = [
+{% 			for property in Properties -%}
+			"{{ property.PropertyName }}",
+{% 			endfor -%}
+		];
+{%   	else -%}
+			var ownProperties: string[] = [];
+{%   	endif -%}
+		return superProperties.concat(ownProperties);
+	}
+
+	getPropertyInfo(propertyName: string): {type: string, isNewable: boolean, isAbstract: boolean, isEnum: boolean, isArray: boolean, isArrayItemNewable: boolean, isArrayItemAbstract: boolean, isDictionary: boolean } {
+{% if HasInheritance -%}
+        var superInfo = super.getPropertyInfo(propertyName);
+{% else -%}
+        var superInfo = null;
+{% endif -%}
+		switch (propertyName) {
+{% 			for property in Properties -%}
+			case "{{ property.PropertyName }}": return { type: "{{ property.Type }}", isNewable: {{ property.IsNewableObjectType }}, isAbstract: {{ property.IsAbstractObjectType }}, isEnum: {{ property.IsEnum }}, isArray: {{ property.IsArray }}, isArrayItemNewable: {{ property.IsArrayItemNewableObjectType }}, isArrayItemAbstract: {{ property.IsArrayItemAbstractObjectType }}, isDictionary: {{ property.IsDictionary }} };
+{% 			endfor -%}
+			default: return superInfo;
+		}
+	}
+
+	createInstanceFor(propertyName: string): any {
+{% if HasInheritance -%}
+        var superInstance = super.createInstanceFor(propertyName);
+{% else -%}
+        var superInstance = null;
+{% endif -%}
+		switch (propertyName) {
+{% 			for property in Properties -%}
+{%   			if property.IsNewableObjectType -%}
+{%   			unless property.IsAbstractObjectType -%}
+			case "{{ property.PropertyName }}": return new {{ property.Type }}();
+{%   			endunless -%}
+{%   			endif -%}
+{%   			if property.IsArray -%}
+{%   			if property.IsArrayItemNewableObjectType -%}
+{%   			unless property.IsArrayItemAbstractObjectType -%}
+			case "{{ property.PropertyName }}": return new {{ property.ArrayItemType }}();
+{%   			endunless -%}
+{%   			endif -%}
+{%   			endif -%}
+{% 			endfor -%}
+			default: return superInstance;
+		}
+	}
 
 {% if GenerateConstructorInterface or HasBaseDiscriminator -%}
     constructor({% if GenerateConstructorInterface %}data?: I{{ ClassName }}{% endif %}) {

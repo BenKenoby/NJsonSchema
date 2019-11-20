@@ -1,6 +1,6 @@
 ﻿{% if IsNewableObject -%}
 {%   if CheckNewableObject -%}
-{{ Variable }} = {{ Value }} ? {{ Type }}.fromJS({{ Value }}{% if HandleReferences -%}, _mappings{% endif %}) : {% if HasDefaultValue %}{{ DefaultValue }}{% else %}<any>{{ NullValue }}{% endif %};
+if ({{ Value }}) {{ Variable }} = {{ Value }} ? {{ Type }}.fromJS({{ Value }}{% if HandleReferences -%}, _mappings{% endif %}) : {% if HasDefaultValue %}{{ DefaultValue }}{% else %}<any>{{ NullValue }}{% endif %};
 {%   else -%}
 {{ Variable }} = {{ Type }}.fromJS({{ Value }}{% if HandleReferences -%}, _mappings{% endif %});
 {%   endif -%}
@@ -45,7 +45,7 @@ if ({{ Value }}) {
 {%       if HasDefaultValue or NullValue != "undefined" -%}
 {{ Variable }} = {{ Value }} !== undefined ? {{ Value }} : {% if HasDefaultValue %}{{ DefaultValue }}{% else %}<any>{{ NullValue }}{% endif %};
 {%       else -%}
-{{ Variable }} = {{ Value }};
+if ({{ Value }}) {{ Variable }} = {{ Value }};
 {%       endif -%}
     {% endif -%}
 {% endif -%}

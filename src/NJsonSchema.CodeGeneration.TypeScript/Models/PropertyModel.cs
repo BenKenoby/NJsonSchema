@@ -41,6 +41,35 @@ namespace NJsonSchema.CodeGeneration.TypeScript.Models
             _settings = settings;
         }
 
+
+        /// <summary>
+        /// Gets a value indicating wheater the array item type is a class
+        /// </summary>
+        public bool IsArrayItemNewableObjectType => (_property.ActualTypeSchema?.Item?.ActualSchema?.IsEnumeration ?? true) ? false : _resolver.GeneratesType(_property.ActualTypeSchema?.Item);
+
+        /// <summary>
+        /// Gets a value indicating wheater the array item type is an abstract class
+        /// </summary>
+        public bool IsArrayItemAbstractObjectType => _property.ActualTypeSchema?.Item?.ActualSchema?.IsAbstract ?? false;
+
+        /// <summary>
+        /// Gets a value indicating wheater the property type is a class
+        /// </summary>
+        public bool IsNewableObjectType => _property.ActualTypeSchema.IsEnumeration ? false : _resolver.GeneratesType(_property);
+
+        /// <summary>
+        /// Gets a value indicating wheater the property type is an abstract class
+        /// </summary>
+        public bool IsAbstractObjectType => _property.ActualTypeSchema.ActualTypeSchema.IsAbstract;
+
+        //public string[] DerivedTypes => _property.ActualTypeSchema.GetDerivedSchemas()
+
+        /// <summary>
+        /// Gets a value indicating wheater the property is an enum
+        /// </summary>
+        public bool IsEnum => _property.ActualTypeSchema.IsEnumeration;
+
+
         /// <summary>Gets the name of the property in an interface.</summary>
         public string InterfaceName => Regex.IsMatch(_property.Name, _validPropertyNameRegex) ? _property.Name : $"\"{_property.Name}\"";
 
