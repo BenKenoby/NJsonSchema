@@ -45,7 +45,7 @@ if ({{ Value }}) {
 {%       if HasDefaultValue or NullValue != "undefined" -%}
 {{ Variable }} = {{ Value }} !== undefined ? {{ Value }} : {% if HasDefaultValue %}{{ DefaultValue }}{% else %}<any>{{ NullValue }}{% endif %};
 {%       else -%}
-if ({{ Value }}) {{ Variable }} = {{ Value }};
+if (typeof {{ Value }} !== 'undefined' && {{ Value }} !== null) {{ Variable }} = {{ Value }};
 {%       endif -%}
     {% endif -%}
 {% endif -%}
