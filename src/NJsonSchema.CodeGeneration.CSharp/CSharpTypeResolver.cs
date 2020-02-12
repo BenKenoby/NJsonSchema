@@ -213,6 +213,21 @@ namespace NJsonSchema.CodeGeneration.CSharp
                 return isNullable ? "long?" : "long";
             }
 
+            if (schema.Minimum.HasValue || schema.Maximum.HasValue)
+            {
+                if (string.IsNullOrEmpty(schema.Format) && schema.Type == JsonObjectType.Integer)
+                {
+                    // If min/max is defined and not compatible with int32 => use int64
+                    if (schema.Minimum < int.MinValue ||
+                        schema.Minimum > int.MaxValue ||
+                        schema.Maximum < int.MinValue ||
+                        schema.Maximum > int.MaxValue)
+                    {
+                        return isNullable ? "long?" : "long";
+                    }
+                }
+            }
+
             return isNullable ? "int?" : "int";
         }
 
@@ -221,6 +236,11 @@ namespace NJsonSchema.CodeGeneration.CSharp
             if (schema.Format == JsonFormatStrings.Decimal)
             {
                 return isNullable ? "decimal?" : "decimal";
+            }
+
+            if (schema.Format == JsonFormatStrings.Float)
+            {
+                return isNullable ? "float?" : "float";
             }
 
             return isNullable ? "double?" : "double";
